@@ -5,7 +5,7 @@ dotenv.config();
 
 // console.log(process.env.VUE_APP_API_URL);
 const myAxios = axios.create({
-  baseURL: process.env.API_PORT || "http://localhost:3000",
+  baseURL: process.env.VUE_APP_API_URL || "http://localhost:3000",
 });
 
 export default {
