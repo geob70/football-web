@@ -92,9 +92,15 @@ export default {
       let res = await this.$store.dispatch("signUp", this.auth);
       if (res.status === 201) {
         alert("created");
-        this.$router.push({
-          path: "/admin-team",
-        });
+        let res = await this.$store.dispatch("login", { res });
+        if (res.status === 200) {
+          this.$router.push({
+            path: "/admin-team",
+          });
+        } else {
+          this.errorMessage = res.message;
+          this.isActive = true;
+        }
       } else {
         this.errorMessage = res.message;
         this.isActive = true;

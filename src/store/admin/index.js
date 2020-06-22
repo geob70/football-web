@@ -38,13 +38,18 @@ export const admin = {
   },
 
   actions: {
-    async signUp({ dispatch }, data) {
+    async signUp({ commit }, data) {
       const { username, email, password } = data;
       let response = await api.authSignUp({ username, email, password });
       console.log(response);
       if (response.data.status === 201) {
-        return dispatch("login", { email, password });
+        return {
+          status: response.data.status,
+          email: email,
+          password: password,
+        };
       }
+      commit("nothing", null);
       return { status: response.data.status, message: response.data.message };
     },
 
