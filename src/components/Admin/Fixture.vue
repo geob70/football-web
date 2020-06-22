@@ -91,7 +91,9 @@
         </b-table-column>
 
         <b-table-column>
-          <b-button type="is-dark">Delete</b-button>
+          <b-button @click="deleteRow(props.row)" type="is-dark"
+            >Delete</b-button
+          >
         </b-table-column>
       </template>
     </b-table>
@@ -111,7 +113,7 @@
                   :value="option._id"
                   :key="option._id"
                 >
-                  {{ option.teamA.name }}
+                  {{ option.name }}
                 </option>
               </b-select>
             </b-field>
@@ -123,7 +125,7 @@
                   :value="option._id"
                   :key="option._id"
                 >
-                  {{ option }}
+                  {{ option.name }}
                 </option>
               </b-select>
             </b-field>
@@ -159,24 +161,64 @@
         </div>
       </div>
     </div>
+
+    <!-- Delete modal -->
+    <div v-show="opendel" class="shadow">
+      <div id="modal" class="container is-centered">
+        <div class="modal-card" style="width: auto">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Delete Fixture</p>
+          </header>
+          <section class="modal-card-body">
+            <p>Do you wish to continue?</p>
+            <div class="level">
+              <div class="level-left">
+                <button @click="closedel()" class="button" type="button">
+                  no
+                </button>
+              </div>
+              <div class="level-right">
+                <button
+                  @click="delFixture()"
+                  class="button is-primary"
+                  type="button"
+                >
+                  yes
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 <script>
 export default {
-  mounted() {
+  async mounted() {
+    if (localStorage.getItem("token") === null) this.$store.dispatch("logout");
+    else if (
+      (await this.$store.dispatch(
+        "verifyToken",
+        localStorage.getItem("token")
+      )) !== 200
+    ) {
+      this.$store.dispatch("logout");
+    }
     this.$store.dispatch("fetchFixtures");
   },
   data() {
     return {
       isPaginated: true,
       isPaginationSimple: false,
-      paginationPosition: "bottom",
+      paginationPosition: "both",
       defaultSortDirection: "asc",
       sortIcon: "arrow-up",
       sortIconSize: "is-small",
       currentPage: 1,
       perPage: 5,
       open: false,
+      opendel: false,
       input: {
         id: null,
         teamA: null,
@@ -205,7 +247,6 @@ export default {
     async update(record) {
       this.input.id = record._id;
       this.input.token = this.$store.state.admin.token;
-      console.log(this.$store.state.teamStore.teams);
       this.open = true;
     },
 
@@ -229,6 +270,28 @@ export default {
 
     close() {
       this.open = false;
+    },
+
+    async deleteRow(record) {
+      const data = {
+        id: record._id,
+        token: this.$store.state.admin.token,
+      };
+      this.detail = data;
+      this.opendel = true;
+    },
+
+    closedel() {
+      this.opendel = false;
+    },
+
+    async delFixture() {
+      const res = await this.$store.dispatch("deleteFixture", this.detail);
+      if (res.status === undefined) {
+        alert("Deleted");
+        this.opendel = false;
+        this.$store.dispatch("fetchFixtures");
+      } else alert(res.message);
     },
   },
 };

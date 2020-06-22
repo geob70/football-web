@@ -71,9 +71,6 @@ export default {
       const res = await this.$store.dispatch("createFixture", data);
       if (res.status === 201) {
         alert("Created");
-        this.$router.push({
-          path: "/admin-fixture",
-        });
       } else alert(res.message);
     },
   },

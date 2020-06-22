@@ -1,12 +1,13 @@
 import api from "../../api/index";
 
-export default {
+export const fixtureStore = {
   state: {
-    fixtures: [],
+    fixtures: JSON.parse(localStorage.getItem("fixtures")) || [],
   },
 
   mutations: {
-    add(state, item) {
+    addFixtures(state, item) {
+      localStorage.setItem("fixtures", JSON.stringify(item));
       state.fixtures = item;
     },
   },
@@ -14,7 +15,7 @@ export default {
   actions: {
     async fetchFixtures({ commit }) {
       let response = await api.getFixtures();
-      commit("add", response.data);
+      commit("addFixtures", response.data);
     },
   },
 };

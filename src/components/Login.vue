@@ -47,6 +47,23 @@
 </template>
 <script>
 export default {
+  async mounted() {
+    console.log("here", localStorage.getItem("token"));
+    if (localStorage.getItem("token") !== null) {
+      let res = await this.$store.dispatch(
+        "verifyToken",
+        localStorage.getItem("token")
+      );
+      if (res === 200) {
+        this.$router.push({
+          path: "/admin-team",
+        });
+      } else {
+        localStorage.removeItem("token");
+        localStorage.setItem("isLoggedIn", false);
+      }
+    }
+  },
   data() {
     return {
       auth: {
@@ -62,7 +79,6 @@ export default {
     async login() {
       let res = await this.$store.dispatch("login", this.auth);
       if (res.status === 200) {
-        alert("created");
         this.$router.push({
           path: "/admin-team",
         });
@@ -74,7 +90,8 @@ export default {
 
     async signUp() {
       let res = await this.$store.dispatch("signUp", this.auth);
-      if (res.status === 200) {
+      if (res.status === 201) {
+        alert("created");
         this.$router.push({
           path: "/admin-team",
         });

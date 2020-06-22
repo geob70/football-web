@@ -76,8 +76,22 @@
 </template>
 <script>
 export default {
-  mounted() {
-    this.$store.dispatch("fetchTeams");
+  async mounted() {
+    if (!localStorage.getItem("teams")) {
+      this.$store.dispatch("fetchTeams");
+    }
+    if (localStorage.getItem("token") !== null) {
+      let res = await this.$store.dispatch(
+        "verifyToken",
+        localStorage.getItem("token")
+      );
+      if (res === 200) {
+        return this.$router.push({
+          path: "/admin-team",
+        });
+      }
+    }
+    this.$store.dispatch("logout");
   },
   data() {
     return {

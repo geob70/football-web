@@ -1,23 +1,34 @@
 import api from "../../api/index";
 
-export default {
+export const admin = {
   state: {
-    admin: {},
-    token: null,
-    isLoggedIn: false,
+    details: {
+      email: null,
+      username: null,
+    },
+    token: localStorage.getItem("token") || null,
+    isLoggedIn: localStorage.getItem("isLoggedIn") || false,
     nothing: null,
   },
 
   mutations: {
     setToken(state, item) {
+      localStorage.setItem("token", item);
       state.token = item;
     },
 
     setAdmin(state, item) {
-      state.admin = item;
+      if (item !== null) {
+        state.details.username = item.username;
+        state.details.email = item.email;
+      } else {
+        state.details.username = null;
+        state.details.email = null;
+      }
     },
 
     setLogIn(state, item) {
+      localStorage.setItem("isLoggedIn", item);
       state.isLoggedIn = item;
     },
 
@@ -37,20 +48,30 @@ export default {
       return { status: response.data.status, message: response.data.message };
     },
 
-    async login({ commit, dispatch }, data) {
+    async login({ dispatch }, data) {
       const { email, password } = data;
       let response = await api.authLogin({ email, password });
       if (response.data.status === 200) {
-        commit("setToken", response.data.token);
-        commit("setLogIn", true);
-        dispatch("getToken", response.data.token);
+        dispatch("verifyToken", response.data.token);
       }
       return { status: response.data.status, message: response.data.message };
     },
 
-    async getToken({ commit }, token) {
+    async logout({ commit }) {
+      commit("setToken", null);
+      localStorage.removeItem("token");
+      commit("setAdmin", null);
+      commit("setLogIn", false);
+    },
+
+    async verifyToken({ commit }, token) {
       let response = await api.authVerifyToken({ token });
-      commit("setAdmin", response.data.admin);
+      if (response.data.status === 200) {
+        commit("setToken", response.data.token);
+        commit("setAdmin", response.data.admin);
+        commit("setLogIn", true);
+      }
+      return response.data.status;
     },
 
     async createTeam({ commit }, data) {
@@ -96,6 +117,13 @@ export default {
         time,
         id,
       });
+      commit("nothing", null);
+      return { status: response.data.status, message: response.data.message };
+    },
+
+    async deleteFixture({ commit }, data) {
+      const { id, token } = data;
+      let response = await api.deleteFixture(token, { id });
       commit("nothing", null);
       return { status: response.data.status, message: response.data.message };
     },

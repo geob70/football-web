@@ -28,9 +28,6 @@ export default {
       const res = await this.$store.dispatch("createTeam", data);
       if (res.status === 201) {
         alert("Created");
-        this.$router.push({
-          path: "/admin-team",
-        });
       } else alert(res.message);
     },
   },

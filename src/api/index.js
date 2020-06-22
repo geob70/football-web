@@ -78,4 +78,13 @@ export default {
     });
     return response;
   },
+
+  async deleteFixture(token, data) {
+    const response = await myAxios.delete("/fixtures/" + data.id, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  },
 };

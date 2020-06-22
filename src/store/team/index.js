@@ -1,12 +1,13 @@
 import api from "../../api/index";
 
-export default {
+export const teamStore = {
   state: {
-    teams: [],
+    teams: JSON.parse(localStorage.getItem("teams")) || [],
   },
 
   mutations: {
-    add(state, item) {
+    addTeams(state, item) {
+      localStorage.setItem("teams", JSON.stringify(item));
       state.teams = item;
     },
   },
@@ -14,7 +15,7 @@ export default {
   actions: {
     async fetchTeams({ commit }) {
       let response = await api.getTeams();
-      commit("add", response.data);
+      commit("addTeams", response.data);
     },
   },
 };

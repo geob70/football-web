@@ -3,6 +3,9 @@
     <div class="columns is-gapless">
       <div id="left" class="column is-one-fifth">
         <div class="sidebar">
+          <button v-show="isAdmin" class="button block" disabled>
+            Welcome {{ admin.username }}
+          </button>
           <b-menu>
             <b-menu-list label="FOOTBALL LIVE">
               <b-menu-item
@@ -38,8 +41,16 @@
               ></b-menu-item>
             </b-menu-list>
             <b-menu-list label="ACTIONS">
-              <b-menu-item label="Login" @click="goTo('/login')"></b-menu-item>
-              <b-menu-item label="Logout" disabled></b-menu-item>
+              <b-menu-item
+                v-show="!isAdmin"
+                label="Login"
+                @click="goTo('/login')"
+              ></b-menu-item>
+              <b-menu-item
+                @click="logout()"
+                v-show="isAdmin"
+                label="Logout"
+              ></b-menu-item>
             </b-menu-list>
           </b-menu>
         </div>
@@ -65,10 +76,19 @@ export default {
         path: route,
       });
     },
+    async logout() {
+      await this.$store.dispatch("logout");
+      this.$router.push({
+        path: "/",
+      });
+    },
   },
   computed: {
     isAdmin() {
       return this.$store.state.admin.isLoggedIn;
+    },
+    admin() {
+      return this.$store.state.admin.details;
     },
   },
 };

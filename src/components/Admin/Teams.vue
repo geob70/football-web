@@ -76,7 +76,7 @@
         </b-table-column>
 
         <b-table-column>
-          <b-button @click="deleteRow(props.row)" type="is-dark"
+          <b-button @click="deleteRow(props.row)" type="is-dark" disabled
             >Delete</b-button
           >
         </b-table-column>
@@ -153,7 +153,16 @@
 </template>
 <script>
 export default {
-  mounted() {
+  async mounted() {
+    if (localStorage.getItem("token") === null) this.$store.dispatch("logout");
+    else if (
+      (await this.$store.dispatch(
+        "verifyToken",
+        localStorage.getItem("token")
+      )) !== 200
+    ) {
+      this.$store.dispatch("logout");
+    }
     this.$store.dispatch("fetchTeams");
   },
   data() {
@@ -161,7 +170,7 @@ export default {
       data: [],
       isPaginated: true,
       isPaginationSimple: false,
-      paginationPosition: "bottom",
+      paginationPosition: "both",
       defaultSortDirection: "asc",
       sortIcon: "arrow-up",
       sortIconSize: "is-small",
